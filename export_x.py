@@ -36,7 +36,7 @@ class Client(object):
         self.items.append(item)
 
     def rem_item(self, item):
-        """ Add item to list to be exported"""
+        """ Remove item from list to be exported"""
         self.items.remove(item)
 
     def send(self, data):
@@ -46,7 +46,7 @@ class Client(object):
         self.sock.sendto(data, (self.host, self.port))
 
     def get_values(self):
-        """ Create a string of x values"""
+        """ Create a string of x transform values"""
         return " ".join([str(cmds.xform(item, q=True, t=True)[0]) for item in self.items])
 
     def send_values(self):
@@ -54,17 +54,33 @@ class Client(object):
         self.send(self.get_values())
 
     def auto_send(self):
+        """ Setup expressiomn to send values from initailzed ui. 
+        Lame way to setup callback, but works. 
+        Note:
+            Must initailze UI with 
+        Usage: 
+            (Requires ui init)
+            win = x_export.ui()
+            win.show()
+            client = Client()
+            client.auto_send()
+            
+        TODO:
+            Add ability to pass in client to UI or call back string for expression.
+        """
         self.auto_exp = cmds.expression(string='python("win.widget.client.send_values()")')
 
     def del_exp(self):
+        """ Delete the expression """
         cmds.delete(self.auto_exp)
 
     def disconnect(self):
+        """ Close the socket """
         self.sock.close()
 
 
 class Server(object):
-    """ Server meant to echo commands provided """
+    """ Server meant to echo commands provided for testing client """
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('', PORT))
